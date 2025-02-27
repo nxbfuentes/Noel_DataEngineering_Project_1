@@ -21,6 +21,31 @@ They want to access the data through interactive dashboards, downloadable report
 
 What questions are you trying to answer with your data? How will your data support your users?
 
+1. Flight Tracking and Analysis:
+Track Flights Over Time: Monitor how aircraft move between departure and arrival airports. You can analyze flight patterns and timings.
+
+Flight Frequency: Determine the frequency of flights between specific airports within certain time intervals.
+
+2. Airport Activity Analysis:
+Busy Airports: Identify the busiest departure and arrival airports based on the number of flights.
+
+Airport Performance: Compare the performance and usage of different airports.
+
+3. Distance and Duration Analysis:
+Distance Calculation: Calculate the horizontal and vertical distances covered by flights between departure and arrival points.
+
+Flight Duration: Analyze the time taken for flights between their first seen and last seen timestamps.
+
+4. Aircraft Activity:
+Aircraft Utilization: Track the activity of specific aircraft identified by their icao24 addresses.
+
+Flight Paths: Map the flight paths of different aircraft using their positions over time.
+
+5. Callsign Analysis:
+Flight Identification: Identify and track flights based on their callsigns.
+
+Callsign Patterns: Analyze the patterns and usage of different callsigns.
+
 Example:
 
 > - What types of aircraft are most common in the Greater Perth area?

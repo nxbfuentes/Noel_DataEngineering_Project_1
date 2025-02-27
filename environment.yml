@@ -16,5 +16,7 @@ dependencies:
 - Jinja2==3.1.2
 - schedule==1.1.0
 - python-dotenv==1.0.0
+- geopy==2.2.0  # latest version of geopy
 
-#  conda env create -f environment.yml
+#  create env with conda env create -f environment.yml
+#  update env with conda env update -f environment.yml --prune
