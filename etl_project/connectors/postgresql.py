@@ -14,7 +14,7 @@ class PostgreSqlClient:
         database_name: str,
         username: str,
         password: str,
-        port: int = 5432,
+        port: int = 5433
     ):
         self.host_name = server_name
         self.database_name = database_name
