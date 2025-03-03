@@ -2,6 +2,8 @@ import requests
 import pandas as pd
 import time
 import numpy as np
+from sqlalchemy import Table, MetaData
+from etl_project.connectors.postgresql import PostgreSqlClient
 
 
 def fetch_flight_data(start_time, end_time):
@@ -84,13 +86,31 @@ def enrich_airport_data(df_flights_transformed, df_airports):
     return final_merged
 
 
+def load(df, postgresql_client, table, metadata, load_method="overwrite"):
+    if load_method == "insert":
+        postgresql_client.insert(
+            data=df.to_dict(orient="records"), table=table, metadata=metadata
+        )
+    elif load_method == "upsert":
+        postgresql_client.upsert(
+            data=df.to_dict(orient="records"), table=table, metadata=metadata
+        )
+    elif load_method == "overwrite":
+        postgresql_client.overwrite(
+            data=df.to_dict(orient="records"), table=table, metadata=metadata
+        )
+    else:
+        raise Exception(
+            "Please specify a correct load method: [insert, upsert, overwrite]"
+        )
+
+
 def main():
     current_time = int(
         time.mktime(time.strptime("2025-01-01 01:00:00", "%Y-%m-%d %H:%M:%S"))
     )
     one_hour_ago = current_time - 3600
 
-    api_key = "your_opensky_api_key"
     response_data = fetch_flight_data(one_hour_ago, current_time)
 
     df_flights_transformed = transform_flight_data(response_data)
@@ -98,7 +118,13 @@ def main():
     df_airports = pd.read_csv("data/airport-codes.csv")
     final_merged = enrich_airport_data(df_flights_transformed, df_airports)
 
+    postgresql_client = PostgreSqlClient()
+    metadata = MetaData()
+    table = Table("flights", metadata, autoload_with=postgresql_client.engine)
+    load(final_merged, postgresql_client, table, metadata, load_method="overwrite")
+
     print(final_merged.head())
+    print(final_merged.columns)
 
 
 if __name__ == "__main__":
