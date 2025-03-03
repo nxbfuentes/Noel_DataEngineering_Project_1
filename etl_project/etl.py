@@ -4,7 +4,7 @@ import time
 import numpy as np
 
 
-def fetch_flight_data(api_key, start_time, end_time):
+def fetch_flight_data(start_time, end_time):
     root_url = "https://opensky-network.org/api/flights/all"
     params = {"begin": start_time, "end": end_time}
     response = requests.get(f"{root_url}", params=params)
@@ -91,7 +91,7 @@ def main():
     one_hour_ago = current_time - 3600
 
     api_key = "your_opensky_api_key"
-    response_data = fetch_flight_data(api_key, one_hour_ago, current_time)
+    response_data = fetch_flight_data(one_hour_ago, current_time)
 
     df_flights_transformed = transform_flight_data(response_data)
 
