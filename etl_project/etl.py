@@ -3,7 +3,7 @@ import pandas as pd
 import time
 import numpy as np
 from sqlalchemy import Table, MetaData
-from etl_project.connectors.postgresql import PostgreSqlClient
+from connectors.postgresql import PostgreSqlClient
 
 
 def fetch_flight_data(start_time, end_time):
