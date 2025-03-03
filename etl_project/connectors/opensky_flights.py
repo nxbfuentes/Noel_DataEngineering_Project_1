@@ -2,11 +2,9 @@ import requests
 
 
 class OpenSkyApiClient:
-    def __init__(self, api_key: str):
+    def __init__(self):
         self.base_url = "https://opensky-network.org/api"
-        if api_key is None:
-            raise Exception("API key cannot be set to None.")
-        self.api_key = api_key
+        self
 
     def get_flights(self, start_time: int, end_time: int) -> list[dict]:
         """
@@ -24,8 +22,7 @@ class OpenSkyApiClient:
         """
         url = f"{self.base_url}/flights/all"
         params = {"begin": start_time, "end": end_time}
-        headers = {"Authorization": f"Bearer {self.api_key}"}
-        response = requests.get(url=url, params=params, headers=headers)
+        response = requests.get(url=url, params=params)
         if response.status_code == 200:
             return response.json()
         else:
