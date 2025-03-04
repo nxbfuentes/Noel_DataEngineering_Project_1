@@ -23,8 +23,8 @@ def setup_extract():
 
 def test_extract_opensky_flights(setup_extract):
     opensky_client = OpenSkyApiClient()
-    start_time = int(datetime(2023, 2, 6, tzinfo=timezone.utc).timestamp())
-    end_time = int(datetime(2023, 2, 8, tzinfo=timezone.utc).timestamp())
+    start_time = int(datetime(2025, 1, 1, 0, 0, 0, tzinfo=timezone.utc).timestamp())
+    end_time = int(datetime(2025, 1, 1, 1, 0, 0, tzinfo=timezone.utc).timestamp())
     df = extract_opensky_flights(opensky_client, start_time, end_time)
     assert not df.empty
 

@@ -14,17 +14,17 @@ def test_opensky_client_get_flights(setup):
     opensky_client = OpenSkyApiClient()
     start_time = int(
         datetime(
-            year=2023, month=2, day=1, hour=0, minute=0, second=0, tzinfo=timezone.utc
+            year=2025, month=1, day=1, hour=0, minute=0, second=0, tzinfo=timezone.utc
         ).timestamp()
     )
     end_time = int(
         datetime(
-            year=2023,
-            month=2,
+            year=2025,
+            month=1,
             day=1,
-            hour=23,
-            minute=59,
-            second=59,
+            hour=1,
+            minute=0,
+            second=0,
             tzinfo=timezone.utc,
         ).timestamp()
     )
