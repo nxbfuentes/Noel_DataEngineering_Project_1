@@ -37,10 +37,15 @@ def setup_table():
     return table_name, table, metadata
 
 
-def test_postgresqlclient_insert(setup_postgresql_client, setup_table):
+def test_insert_data_into_postgresql_table(setup_postgresql_client, setup_table):
+    """
+    Test inserting data into a PostgreSQL table.
+    """
     postgresql_client = setup_postgresql_client
     table_name, table, metadata = setup_table
-    postgresql_client.drop_table(table_name)  # make sure table has already been dropped
+    postgresql_client.drop_table(
+        table_name
+    )  # Ensure the table is dropped before the test
 
     data = [{"id": 1, "value": "hello"}, {"id": 2, "value": "world"}]
 
@@ -52,10 +57,15 @@ def test_postgresqlclient_insert(setup_postgresql_client, setup_table):
     postgresql_client.drop_table(table_name)
 
 
-def test_postgresqlclient_upsert(setup_postgresql_client, setup_table):
+def test_upsert_data_into_postgresql_table(setup_postgresql_client, setup_table):
+    """
+    Test upserting data into a PostgreSQL table.
+    """
     postgresql_client = setup_postgresql_client
     table_name, table, metadata = setup_table
-    postgresql_client.drop_table(table_name)  # make sure table has already been dropped
+    postgresql_client.drop_table(
+        table_name
+    )  # Ensure the table is dropped before the test
 
     data = [{"id": 1, "value": "hello"}, {"id": 2, "value": "world"}]
 
@@ -72,10 +82,15 @@ def test_postgresqlclient_upsert(setup_postgresql_client, setup_table):
     postgresql_client.drop_table(table_name)
 
 
-def test_postgresqlclient_overwrite(setup_postgresql_client, setup_table):
+def test_overwrite_data_in_postgresql_table(setup_postgresql_client, setup_table):
+    """
+    Test overwriting data in a PostgreSQL table.
+    """
     postgresql_client = setup_postgresql_client
     table_name, table, metadata = setup_table
-    postgresql_client.drop_table(table_name)  # make sure table has already been dropped
+    postgresql_client.drop_table(
+        table_name
+    )  # Ensure the table is dropped before the test
 
     data = [{"id": 1, "value": "hello"}, {"id": 2, "value": "world"}]
 
