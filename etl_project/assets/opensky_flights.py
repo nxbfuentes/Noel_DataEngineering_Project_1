@@ -140,18 +140,13 @@ def load(
         metadata: sqlalchemy metadata
         load_method: supports one of: [insert, upsert, overwrite]
     """
+    data = df.to_dict(orient="records")
     if load_method == "insert":
-        postgresql_client.insert(
-            data=df.to_dict(orient="records"), table=table, metadata=metadata
-        )
+        postgresql_client.insert(data=data, table=table, metadata=metadata)
     elif load_method == "upsert":
-        postgresql_client.upsert(
-            data=df.to_dict(orient="records"), table=table, metadata=metadata
-        )
+        postgresql_client.upsert(data=data, table=table, metadata=metadata)
     elif load_method == "overwrite":
-        postgresql_client.overwrite(
-            data=df.to_dict(orient="records"), table=table, metadata=metadata
-        )
+        postgresql_client.overwrite(data=data, table=table, metadata=metadata)
     else:
         raise Exception(
             "Please specify a correct load method: [insert, upsert, overwrite]"
