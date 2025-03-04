@@ -5,7 +5,8 @@ from etl_project.connectors.postgresql import PostgreSqlClient
 from sqlalchemy import Table, MetaData, Column, Integer, String, Float
 from etl_project.assets.opensky_flights import (
     extract_opensky_flights,
-    transform,
+    transform_flight_data,
+    enrich_airport_data,
     load,
 )
 from etl_project.assets.metadata_logging import MetaDataLogging, MetaDataLoggingStatus
@@ -14,6 +15,7 @@ from pathlib import Path
 import schedule
 import time
 from etl_project.assets.pipeline_logging import PipelineLogging
+import pandas as pd
 
 
 def pipeline(config: dict, pipeline_logging: PipelineLogging):
@@ -39,7 +41,13 @@ def pipeline(config: dict, pipeline_logging: PipelineLogging):
     )
     # transform
     pipeline_logging.logger.info("Transforming dataframes")
-    df_transformed = transform(df=df_opensky_flights)
+    df_transformed = transform_flight_data(response_data=df_opensky_flights)
+
+    df_airports = pd.read_csv(config.get("airport_codes_path"))
+    df_enriched = enrich_airport_data(
+        df_flights_transformed=df_transformed, df_airports=df_airports
+    )
+
     # load
     pipeline_logging.logger.info("Loading data to postgres")
     postgresql_client = PostgreSqlClient(
@@ -63,7 +71,7 @@ def pipeline(config: dict, pipeline_logging: PipelineLogging):
         Column("estArrivalAirportDistance", Float),
     )
     load(
-        df=df_transformed,
+        df=df_enriched,
         postgresql_client=postgresql_client,
         table=table,
         metadata=metadata,
