@@ -14,7 +14,7 @@ class PostgreSqlClient:
         database_name: str,
         username: str,
         password: str,
-        port: int = 5433
+        port: int = 5433,
     ):
         self.host_name = server_name
         self.database_name = database_name
@@ -66,4 +66,8 @@ class PostgreSqlClient:
                 c.key: c for c in insert_statement.excluded if c.key not in key_columns
             },
         )
-        self.engine.execute(upsert_statement)
+        try:
+            self.engine.execute(upsert_statement)
+        except Exception as e:
+            print(f"Error executing upsert: {e}")
+            raise

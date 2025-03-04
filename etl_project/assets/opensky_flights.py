@@ -4,6 +4,7 @@ from pathlib import Path
 from sqlalchemy import Table, MetaData
 from etl_project.connectors.postgresql import PostgreSqlClient
 from datetime import datetime, timezone, timedelta
+import logging
 
 
 def extract_opensky_flights(
@@ -141,6 +142,11 @@ def load(
         load_method: supports one of: [insert, upsert, overwrite]
     """
     data = df.to_dict(orient="records")
+    logging.info(f"Loading data with method: {load_method}")
+    logging.info(f"Data: {data}")
+    logging.info(f"Table: {table}")
+    logging.info(f"Metadata: {metadata}")
+
     if load_method == "insert":
         postgresql_client.insert(data=data, table=table, metadata=metadata)
     elif load_method == "upsert":

@@ -47,7 +47,10 @@ def test_insert_data_into_postgresql_table(setup_postgresql_client, setup_table)
         table_name
     )  # Ensure the table is dropped before the test
 
-    data = [{"id": 1, "value": "hello"}, {"id": 2, "value": "world"}]
+    data = [
+        {"id": 1, "value": "expected_value_1"},
+        {"id": 2, "value": "expected_value_2"},
+    ]
 
     postgresql_client.insert(data=data, table=table, metadata=metadata)
 
@@ -67,7 +70,10 @@ def test_upsert_data_into_postgresql_table(setup_postgresql_client, setup_table)
         table_name
     )  # Ensure the table is dropped before the test
 
-    data = [{"id": 1, "value": "hello"}, {"id": 2, "value": "world"}]
+    data = [
+        {"id": 1, "value": "expected_value_1"},
+        {"id": 2, "value": "expected_value_2"},
+    ]
 
     postgresql_client.insert(data=data, table=table, metadata=metadata)
 
@@ -92,7 +98,10 @@ def test_overwrite_data_in_postgresql_table(setup_postgresql_client, setup_table
         table_name
     )  # Ensure the table is dropped before the test
 
-    data = [{"id": 1, "value": "hello"}, {"id": 2, "value": "world"}]
+    data = [
+        {"id": 1, "value": "expected_value_1"},
+        {"id": 2, "value": "expected_value_2"},
+    ]
 
     postgresql_client.insert(data=data, table=table, metadata=metadata)
 
