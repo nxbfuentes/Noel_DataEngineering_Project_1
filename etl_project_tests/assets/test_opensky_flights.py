@@ -168,8 +168,14 @@ def setup_transformed_table_metadata():
         Column("callsign", String),
         Column("estDepartureAirportDistance", Integer),
         Column("estArrivalAirportDistance", Integer),
+        Column("departure_airport_type", String),
         Column("departure_airport_name", String),
+        Column("departure_country", String),
+        Column("departure_coordinates", String),
+        Column("arrival_airport_type", String),
         Column("arrival_airport_name", String),
+        Column("arrival_country", String),
+        Column("arrival_coordinates", String),
     )
     return table_name, table, metadata
 
