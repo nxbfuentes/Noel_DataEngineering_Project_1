@@ -67,7 +67,7 @@ def enrich_airport_data(df_flights_transformed, df_airports):
     ).drop("ident", axis=1)
     merged_departure = merged_departure.rename(
         columns={
-            "type": "departure_type",
+            "type": "departure_airport_type",
             "name": "departure_airport_name",
             "elevation_ft": "departure_elevation_ft",
             "continent": "departure_continent",
@@ -87,7 +87,7 @@ def enrich_airport_data(df_flights_transformed, df_airports):
     ).drop("ident", axis=1)
     final_merged = final_merged.rename(
         columns={
-            "type": "arrival_type",
+            "type": "arrival_airport_type",
             "name": "arrival_airport_name",
             "elevation_ft": "arrival_elevation_ft",
             "continent": "arrival_continent",
@@ -101,7 +101,26 @@ def enrich_airport_data(df_flights_transformed, df_airports):
             "coordinates": "arrival_coordinates",
         }
     )
-    return final_merged
+    columns_to_keep = [
+        "icao24",
+        "firstSeen",
+        "lastSeen",
+        "estDepartureAirport",
+        "estArrivalAirport",
+        "callsign",
+        "estDepartureAirportDistance",
+        "estArrivalAirportDistance",
+        "departure_airport_type",
+        "departure_airport_name",
+        "departure_country",
+        "departure_coordinates",
+        "arrival_airport_type",
+        "arrival_airport_name",
+        "arrival_country",
+        "arrival_coordinates",
+    ]
+    df_filtered = final_merged[columns_to_keep]
+    return df_filtered
 
 
 def load(
