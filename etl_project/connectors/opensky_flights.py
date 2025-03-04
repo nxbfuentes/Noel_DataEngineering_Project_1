@@ -21,6 +21,8 @@ class OpenSkyApiClient:
         """
         url = f"{self.base_url}/flights/all"
         params = {"begin": start_time, "end": end_time}
+        print(f"Request URL: {url}")
+        print(f"Request Parameters: {params}")
         response = requests.get(url=url, params=params)
         if response.status_code == 200:
             return response.json()
