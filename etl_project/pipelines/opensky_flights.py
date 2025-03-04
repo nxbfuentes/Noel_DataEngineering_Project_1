@@ -116,7 +116,7 @@ if __name__ == "__main__":
         server_name=LOGGING_SERVER_NAME,
         database_name=LOGGING_DATABASE_NAME,
         username=LOGGING_USERNAME,
-        password=LOGGING_PASSWORD,
+        password=LOGGING_PASSWORD,I
         port=LOGGING_PORT,
     )
 
