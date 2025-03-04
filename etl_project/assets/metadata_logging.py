@@ -12,14 +12,19 @@ class MetaDataLoggingStatus(Enum):
 
 class MetaDataLogging:
     def __init__(
-        self, pipeline_name: str, postgresql_client: PostgreSqlClient, config: dict
+        self,
+        pipeline_name: str,
+        postgresql_client: PostgreSqlClient,
+        config: dict = {},
+        log_table_name: str = "opensky_pipeline_logs",
     ):
         self.pipeline_name = pipeline_name
+        self.log_table_name = log_table_name
         self.postgresql_client = postgresql_client
         self.config = config
         self.metadata = MetaData()
         self.table = Table(
-            "pipeline_logs",
+            self.log_table_name,
             self.metadata,
             Column("pipeline_name", String, primary_key=True),
             Column("run_id", Integer, primary_key=True),
