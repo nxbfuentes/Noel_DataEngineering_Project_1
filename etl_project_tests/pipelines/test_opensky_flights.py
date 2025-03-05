@@ -4,6 +4,7 @@ from etl_project.pipelines.opensky_flights import pipeline, run_pipeline
 from etl_project.connectors.postgresql import PostgreSqlClient
 from etl_project.assets.pipeline_logging import PipelineLogging
 from etl_project.assets.metadata_logging import MetaDataLogging, MetaDataLoggingStatus
+import os
 
 
 class TestOpenSkyFlightsPipeline(unittest.TestCase):
@@ -33,10 +34,14 @@ class TestOpenSkyFlightsPipeline(unittest.TestCase):
         config = {
             "start_time": "2023-01-01T00:00:00Z",
             "end_time": "2023-01-01T01:00:00Z",
-            "airport_codes_path": "path/to/airport_codes.csv",
+            "airport_codes_path": "data/airport-codes.csv",
         }
+        # Create logs folder if it doesn't exist
+        logs_folder_path = "logs"
+        os.makedirs(logs_folder_path, exist_ok=True)
+
         pipeline_logging = PipelineLogging(
-            pipeline_name="test_pipeline", log_folder_path="path/to/logs"
+            pipeline_name="test_pipeline", log_folder_path=logs_folder_path
         )
 
         # Run the pipeline
