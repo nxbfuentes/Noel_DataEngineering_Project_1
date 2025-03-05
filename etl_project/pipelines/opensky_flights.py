@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 import os
 from etl_project.connectors.opensky_flights import OpenSkyApiClient
 from etl_project.connectors.postgresql import PostgreSqlClient
-from sqlalchemy import Table, MetaData, Column, Integer, String, Float
+from sqlalchemy import Table, MetaData, Column, Integer, String, Float, DateTime
 from etl_project.assets.opensky_flights import (
     extract_opensky_flights,
     transform_flight_data,
@@ -62,8 +62,8 @@ def pipeline(config: dict, pipeline_logging: PipelineLogging):
         "opensky_flights",
         metadata,
         Column("icao24", String, primary_key=True),
-        Column("firstSeen", String),
-        Column("lastSeen", String),
+        Column("firstSeen", DateTime),
+        Column("lastSeen", DateTime),
         Column("estDepartureAirport", String),
         Column("estArrivalAirport", String),
         Column("callsign", String),

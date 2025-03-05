@@ -141,6 +141,8 @@ def load(
         metadata: sqlalchemy metadata
         load_method: supports one of: [insert, upsert, overwrite]
     """
+    df["firstSeen"] = df["firstSeen"].astype("datetime64[ns]")
+    df["lastSeen"] = df["lastSeen"].astype("datetime64[ns]")
     data = df.to_dict(orient="records")
     logging.info(f"Loading data with method: {load_method}")
     logging.info(f"Data: {data}")

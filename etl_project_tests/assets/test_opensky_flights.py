@@ -11,7 +11,7 @@ from etl_project.connectors.opensky_flights import OpenSkyApiClient
 import pytest
 from dotenv import load_dotenv
 import pandas as pd
-from sqlalchemy import Table, MetaData, Column, String, Integer
+from sqlalchemy import Table, MetaData, Column, String, Integer, Float, DateTime
 from etl_project.connectors.postgresql import PostgreSqlClient
 from datetime import datetime, timezone
 
@@ -161,13 +161,13 @@ def setup_transformed_table_metadata():
         table_name,
         metadata,
         Column("icao24", String, primary_key=True),
-        Column("firstSeen", String),
-        Column("lastSeen", String),
+        Column("firstSeen", DateTime),
+        Column("lastSeen", DateTime),
         Column("estDepartureAirport", String),
         Column("estArrivalAirport", String),
         Column("callsign", String),
-        Column("estDepartureAirportDistance", Integer),
-        Column("estArrivalAirportDistance", Integer),
+        Column("estDepartureAirportDistance", Float),
+        Column("estArrivalAirportDistance", Float),
         Column("departure_airport_type", String),
         Column("departure_airport_name", String),
         Column("departure_country", String),
