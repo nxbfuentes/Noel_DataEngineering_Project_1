@@ -22,12 +22,15 @@ def pipeline(config: dict, pipeline_logging: PipelineLogging):
     pipeline_logging.logger.info("Starting pipeline run")
     # set up environment variables
     pipeline_logging.logger.info("Getting pipeline environment variables")
-    API_KEY = os.environ.get("OPENSKY_API_KEY")
     SERVER_NAME = os.environ.get("SERVER_NAME")
     DATABASE_NAME = os.environ.get("DATABASE_NAME")
     DB_USERNAME = os.environ.get("DB_USERNAME")
     DB_PASSWORD = os.environ.get("DB_PASSWORD")
     PORT = os.environ.get("PORT")
+
+    if not all([SERVER_NAME, DATABASE_NAME, DB_USERNAME, DB_PASSWORD, PORT]):
+        pipeline_logging.logger.error("Missing one or more environment variables")
+        raise EnvironmentError("Missing one or more environment variables")
 
     pipeline_logging.logger.info("Creating OpenSky API client")
     opensky_client = OpenSkyApiClient(api_key=API_KEY)
@@ -103,7 +106,7 @@ def run_pipeline(
         config=pipeline_config.get("config"),
     )
     try:
-        metadata_logger.log()  # log start
+        metadata_logger.log(status=MetaDataLoggingStatus.RUNNING)  # log start
         pipeline(
             config=pipeline_config.get("config"), pipeline_logging=pipeline_logging
         )
