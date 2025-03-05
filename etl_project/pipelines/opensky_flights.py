@@ -33,7 +33,7 @@ def pipeline(config: dict, pipeline_logging: PipelineLogging):
         raise EnvironmentError("Missing one or more environment variables")
 
     pipeline_logging.logger.info("Creating OpenSky API client")
-    opensky_client = OpenSkyApiClient(api_key=API_KEY)
+    opensky_client = OpenSkyApiClient()
 
     # extract
     pipeline_logging.logger.info("Extracting data from OpenSky API")
