@@ -8,15 +8,90 @@ import logging
 import numpy as np
 
 
+def _generate_hourly_datetime_ranges(
+    start_date: str,
+    end_date: str,
+) -> list[dict[str, datetime]]:
+    """
+    Generates a range of hourly datetime ranges.
+
+    Usage example:
+        _generate_hourly_datetime_ranges(start_date="2020-01-01", end_date="2020-01-02")
+
+    Returns:
+            [
+                {'start_time': datetime(2020, 1, 1, 0, 0, 0, tzinfo=timezone.utc), 'end_time': datetime(2020, 1, 1, 1, 0, 0, tzinfo=timezone.utc)},
+                {'start_time': datetime(2020, 1, 1, 1, 0, 0, tzinfo=timezone.utc), 'end_time': datetime(2020, 1, 1, 2, 0, 0, tzinfo=timezone.utc)},
+                ...
+                {'start_time': datetime(2020, 1, 1, 23, 0, 0, tzinfo=timezone.utc), 'end_time': datetime(2020, 1, 2, 0, 0, 0, tzinfo=timezone.utc)}
+            ]
+
+    Args:
+        start_date: provide a str with the format "yyyy-mm-dd"
+        end_date: provide a str with the format "yyyy-mm-dd"
+
+    Returns:
+        A list of dictionaries with datetime objects
+
+    Raises:
+        Exception when incorrect input date string format is provided.
+    """
+
+    date_range = []
+    if start_date is not None and end_date is not None:
+        raw_start_time = datetime.strptime(start_date, "%Y-%m-%d")
+        raw_end_time = datetime.strptime(end_date, "%Y-%m-%d")
+        start_time = datetime(
+            year=raw_start_time.year,
+            month=raw_start_time.month,
+            day=raw_start_time.day,
+            hour=0,
+            minute=0,
+            second=0,
+            tzinfo=timezone.utc,
+        )
+        end_time = datetime(
+            year=raw_end_time.year,
+            month=raw_end_time.month,
+            day=raw_end_time.day,
+            hour=0,
+            minute=0,
+            second=0,
+            tzinfo=timezone.utc,
+        )
+        total_hours = int((end_time - start_time).total_seconds() / 3600)
+        date_range = [
+            {
+                "start_time": (start_time + timedelta(hours=i)),
+                "end_time": (start_time + timedelta(hours=i + 1)),
+            }
+            for i in range(total_hours)
+        ]
+    else:
+        raise Exception(
+            "Please provide valid dates `YYYY-MM-DD` for start_date and end_date."
+        )
+    return date_range
+
+
 def extract_opensky_flights(
     opensky_client: OpenSkyApiClient,
-    start_time: int,
-    end_time: int,
+    start_date: str,
+    end_date: str,
 ) -> pd.DataFrame:
     """
     Perform extraction using OpenSky API.
     """
-    data = opensky_client.get_flights(start_time=start_time, end_time=end_time)
+    data = []
+    for dates in _generate_hourly_datetime_ranges(
+        start_date=start_date, end_date=end_date
+    ):
+        data.extend(
+            opensky_client.get_flights(
+                start_time=int(dates.get("start_time").timestamp()),
+                end_time=int(dates.get("end_time").timestamp()),
+            )
+        )
     df = pd.json_normalize(data=data)
     return df
 

@@ -8,6 +8,7 @@ from etl_project.assets.opensky_flights import (
     transform_flight_data,
     enrich_airport_data,
     load,
+    _generate_hourly_datetime_ranges,  # Import the new function
 )
 from etl_project.assets.metadata_logging import MetaDataLogging, MetaDataLoggingStatus
 import yaml
@@ -56,19 +57,15 @@ def pipeline(config: dict, pipeline_logging: PipelineLogging):
     opensky_client = OpenSkyApiClient()
 
     # Convert start_time and end_time to Unix timestamps
-    start_time_str = config.get("start_time")
-    end_time_str = config.get("end_time")
-    raw_start_time = time.strptime(start_time_str, "%Y-%m-%dT%H:%M:%S%z")
-    raw_end_time = time.strptime(end_time_str, "%Y-%m-%dT%H:%M:%S%z")
-    start_time = int(time.mktime(raw_start_time))
-    end_time = int(time.mktime(raw_end_time))
+    start_date = config.get("start_date")
+    end_date = config.get("end_date")
 
     # extract
     pipeline_logging.logger.info("Extracting data from OpenSky API")
     df_opensky_flights = extract_opensky_flights(
         opensky_client=opensky_client,
-        start_time=start_time,
-        end_time=end_time,
+        start_date=start_date,
+        end_date=end_date,
     )
     pipeline_logging.logger.debug(f"Extracted data: {df_opensky_flights.head()}")
 
@@ -246,3 +243,4 @@ if __name__ == "__main__":
             time.sleep(pipeline_config.get("schedule").get("poll_seconds"))
     except KeyboardInterrupt:
         print("Pipeline execution interrupted by user.")
+``` 
