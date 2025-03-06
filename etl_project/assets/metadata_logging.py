@@ -6,6 +6,9 @@ from sqlalchemy import insert, select, func
 
 
 class MetaDataLoggingStatus(Enum):
+    """Data class for log status"""
+
+    RUN_START = "START"
     RUN_SUCCESS = "SUCCESS"
     RUN_FAILURE = "FAILURE"
 
@@ -52,19 +55,21 @@ class MetaDataLogging:
         else:
             return run_id + 1
 
-    def log(self, status: MetaDataLoggingStatus = None, logs: str = None):
-        log_entry = {
-            "pipeline_name": self.pipeline_name,
-            "status": status.value if status else None,
-            "logs": logs,
-            "timestamp": datetime.now().isoformat(),
-        }
+    def log(
+        self,
+        status: MetaDataLoggingStatus = MetaDataLoggingStatus.RUN_START,
+        timestamp: datetime = None,
+        logs: str = None,
+    ) -> None:
+        """Log metadata to the database."""
+        if timestamp is None:
+            timestamp = datetime.now().isoformat()
         insert_statement = insert(self.table).values(
             pipeline_name=self.pipeline_name,
-            timestamp=log_entry["timestamp"],
+            timestamp=timestamp,
             run_id=self.run_id,
-            status=log_entry["status"],
+            status=status
             config=self.config,
-            logs=log_entry["logs"],
+            logs=logs,
         )
         self.postgresql_client.engine.execute(insert_statement)
