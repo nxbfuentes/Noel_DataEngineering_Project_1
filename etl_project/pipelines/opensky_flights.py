@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 import os
 from etl_project.connectors.opensky_flights import OpenSkyApiClient
 from etl_project.connectors.postgresql import PostgreSqlClient
-from sqlalchemy import Table, MetaData, Column, Integer, String, Float, DateTime
+from sqlalchemy import Table, MetaData, Column, String, Float, DateTime
 from etl_project.assets.opensky_flights import (
     extract_opensky_flights,
     transform_flight_data,
@@ -26,6 +26,33 @@ def validate_data_types(df: pd.DataFrame):
     df["estDepartureAirportDistance"] = df["estDepartureAirportDistance"].astype(float)
     df["estArrivalAirportDistance"] = df["estArrivalAirportDistance"].astype(float)
     # Add more type validations as needed
+
+
+def validate_data_ranges(df: pd.DataFrame, logger):
+    """
+    Validate and correct data ranges in the DataFrame to match the database constraints.
+    """
+    try:
+        if not df["estDepartureAirportDistance"].between(-32768, 32767).all():
+            logger.error("estDepartureAirportDistance values out of range")
+            raise ValueError("estDepartureAirportDistance values out of range")
+        if not df["estArrivalAirportDistance"].between(-32768, 32767).all():
+            logger.error("estArrivalAirportDistance values out of range")
+            raise ValueError("estArrivalAirportDistance values out of range")
+        # Add more range validations as needed
+    except KeyError as e:
+        logger.error(f"Missing expected column in DataFrame: {e}")
+        raise
+
+
+def log_dataframe_info(df: pd.DataFrame, logger):
+    """
+    Log the data types and sample values of the DataFrame.
+    """
+    logger.info("DataFrame info:")
+    logger.info(df.dtypes)
+    logger.info("Sample data:")
+    logger.info(df.head())
 
 
 def pipeline(config: dict, pipeline_logging: PipelineLogging):
@@ -100,6 +127,13 @@ def pipeline(config: dict, pipeline_logging: PipelineLogging):
     pipeline_logging.logger.info("Validating data types")
     validate_data_types(df_enriched)
 
+    # Validate data ranges before loading
+    pipeline_logging.logger.info("Validating data ranges")
+    validate_data_ranges(df_enriched, pipeline_logging.logger)
+
+    # Log DataFrame info before loading
+    log_dataframe_info(df_enriched, pipeline_logging.logger)
+
     # load
     pipeline_logging.logger.info("Loading data to postgres")
     postgresql_client = PostgreSqlClient(
@@ -114,21 +148,21 @@ def pipeline(config: dict, pipeline_logging: PipelineLogging):
         "opensky_flights",
         metadata,
         Column("icao24", String, primary_key=True),
-        Column("firstSeen", DateTime),
-        Column("lastSeen", DateTime),
-        Column("estDepartureAirport", String),
-        Column("estArrivalAirport", String),
-        Column("callsign", String),
-        Column("estDepartureAirportDistance", Float),
-        Column("estArrivalAirportDistance", Float),
-        Column("departure_airport_type", String),
-        Column("departure_airport_name", String),
-        Column("departure_country", String),
-        Column("departure_coordinates", String),
-        Column("arrival_airport_type", String),
-        Column("arrival_airport_name", String),
-        Column("arrival_country", String),
-        Column("arrival_coordinates", String),
+        Column("firstSeen", DateTime, primary_key=True),  # datetime64[ns]
+        Column("lastSeen", DateTime, primary_key=True),  # datetime64[ns]
+        Column("estDepartureAirport", String),  # object
+        Column("estArrivalAirport", String),  # object
+        Column("callsign", String),  # object
+        Column("estDepartureAirportDistance", Float),  # float64
+        Column("estArrivalAirportDistance", Float),  # float64
+        Column("departure_airport_type", String),  # object
+        Column("departure_airport_name", String),  # object
+        Column("departure_country", String),  # object
+        Column("departure_coordinates", String),  # object
+        Column("arrival_airport_type", String),  # object
+        Column("arrival_airport_name", String),  # object
+        Column("arrival_country", String),  # object
+        Column("arrival_coordinates", String),  # object
     )
     load(
         df=df_enriched,
