@@ -16,7 +16,7 @@ import schedule
 import time
 from etl_project.assets.pipeline_logging import PipelineLogging
 import pandas as pd
-import datetime
+from datetime import datetime, timezone
 
 
 def validate_data_types(df: pd.DataFrame):
@@ -26,55 +26,6 @@ def validate_data_types(df: pd.DataFrame):
     df["estDepartureAirportDistance"] = df["estDepartureAirportDistance"].astype(float)
     df["estArrivalAirportDistance"] = df["estArrivalAirportDistance"].astype(float)
     # Add more type validations as needed
-
-
-def validate_data_ranges(df: pd.DataFrame, logger):
-    """
-    Validate and correct data ranges in the DataFrame to match the database constraints.
-    """
-    try:
-        # Ensure data types are correct before validation
-        df["estDepartureAirportDistance"] = df["estDepartureAirportDistance"].astype(
-            float
-        )
-        df["estArrivalAirportDistance"] = df["estArrivalAirportDistance"].astype(float)
-
-        departure_min, departure_max = (
-            df["estDepartureAirportDistance"].min(),
-            df["estDepartureAirportDistance"].max(),
-        )
-        arrival_min, arrival_max = (
-            df["estArrivalAirportDistance"].min(),
-            df["estArrivalAirportDistance"].max(),
-        )
-
-        logger.info(
-            f"Departure Airport Distance Range: ({departure_min}, {departure_max})"
-        )
-        logger.info(f"Arrival Airport Distance Range: ({arrival_min}, {arrival_max})")
-
-        if not df["estDepartureAirportDistance"].between(-32768, 32767).all():
-            logger.error("estDepartureAirportDistance values out of range")
-            out_of_range_rows = df[
-                ~df["estDepartureAirportDistance"].between(-32768, 32767)
-            ]
-            logger.error(
-                f"Out of range rows for estDepartureAirportDistance: {out_of_range_rows}"
-            )
-            raise ValueError("estDepartureAirportDistance values out of range")
-        if not df["estArrivalAirportDistance"].between(-32768, 32767).all():
-            logger.error("estArrivalAirportDistance values out of range")
-            out_of_range_rows = df[
-                ~df["estArrivalAirportDistance"].between(-32768, 32767)
-            ]
-            logger.error(
-                f"Out of range rows for estArrivalAirportDistance: {out_of_range_rows}"
-            )
-            raise ValueError("estArrivalAirportDistance values out of range")
-        # Add more range validations as needed
-    except KeyError as e:
-        logger.error(f"Missing expected column in DataFrame: {e}")
-        raise
 
 
 def log_dataframe_info(df: pd.DataFrame, logger):
@@ -107,14 +58,10 @@ def pipeline(config: dict, pipeline_logging: PipelineLogging):
     # Convert start_time and end_time to Unix timestamps
     start_time_str = config.get("start_time")
     end_time_str = config.get("end_time")
-    start_time = int(
-        datetime.datetime.fromisoformat(
-            start_time_str.replace("Z", "+00:00")
-        ).timestamp()
-    )
-    end_time = int(
-        datetime.datetime.fromisoformat(end_time_str.replace("Z", "+00:00")).timestamp()
-    )
+    raw_start_time = time.strptime(start_time_str, "%Y-%m-%dT%H:%M:%S%z")
+    raw_end_time = time.strptime(end_time_str, "%Y-%m-%dT%H:%M:%S%z")
+    start_time = int(time.mktime(raw_start_time))
+    end_time = int(time.mktime(raw_end_time))
 
     # extract
     pipeline_logging.logger.info("Extracting data from OpenSky API")
@@ -159,10 +106,6 @@ def pipeline(config: dict, pipeline_logging: PipelineLogging):
     pipeline_logging.logger.info("Validating data types")
     validate_data_types(df_enriched)
 
-    # Validate data ranges before loading
-    # pipeline_logging.logger.info("Validating data ranges")
-    # validate_data_ranges(df_enriched, pipeline_logging.logger)
-
     # Log DataFrame info before loading
     log_dataframe_info(df_enriched, pipeline_logging.logger)
 
@@ -181,7 +124,7 @@ def pipeline(config: dict, pipeline_logging: PipelineLogging):
         metadata,
         Column("icao24", String, primary_key=True),
         Column("firstSeen", DateTime, primary_key=True),  # datetime64[ns]
-        Column("lastSeen", DateTime, primary_key=True),  # datetime64[ns]
+        Column("lastSeen", DateTime),  # datetime64[ns]
         Column("estDepartureAirport", String),  # object
         Column("estArrivalAirport", String),  # object
         Column("callsign", String),  # object

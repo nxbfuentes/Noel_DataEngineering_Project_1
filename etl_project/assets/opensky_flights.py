@@ -112,11 +112,9 @@ def enrich_airport_data(df_flights_transformed, df_airports):
         "arrival_country",
         "arrival_coordinates",
     ]
-    df_filtered = final_merged[
-        columns_to_keep
-    ].copy()  # Use .copy() to avoid SettingWithCopyWarning
-    df_filtered.loc[:, "firstSeen"] = df_filtered["firstSeen"].astype("datetime64[ns]")
-    df_filtered.loc[:, "lastSeen"] = df_filtered["lastSeen"].astype("datetime64[ns]")
+    df_filtered = final_merged[columns_to_keep]
+    df_filtered["firstSeen"] = df_filtered["firstSeen"].astype("datetime64[ns]")
+    df_filtered["lastSeen"] = df_filtered["lastSeen"].astype("datetime64[ns]")
 
     return df_filtered
 
