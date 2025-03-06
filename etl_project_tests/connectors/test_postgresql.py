@@ -37,6 +37,19 @@ def setup_table():
     return table_name, table, metadata
 
 
+def test_postgresql_connection(setup_postgresql_client):
+    """
+    Test the connection to the PostgreSQL database.
+    """
+    postgresql_client = setup_postgresql_client
+    try:
+        connection = postgresql_client.engine.connect()
+        connection.close()
+        assert True
+    except Exception as e:
+        assert False, f"Connection failed: {e}"
+
+
 def test_insert_data_into_postgresql_table(setup_postgresql_client, setup_table):
     """
     Test inserting data into a PostgreSQL table.
