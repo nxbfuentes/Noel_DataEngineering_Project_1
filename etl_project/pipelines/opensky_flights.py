@@ -61,18 +61,24 @@ def pipeline(config: dict, pipeline_logging: PipelineLogging):
     end_date = config.get("end_datetime")
 
     # Generate hourly datetime ranges
-    hourly_ranges = _generate_hourly_datetime_ranges(start_datetime=start_date, end_datetime=end_date)
+    hourly_ranges = _generate_hourly_datetime_ranges(
+        start_datetime=start_date, end_datetime=end_date
+    )
 
     for date_range in hourly_ranges:
         try:
             # extract
-            pipeline_logging.logger.info(f"Extracting data from OpenSky API for range {date_range}")
+            pipeline_logging.logger.info(
+                f"Extracting data from OpenSky API for range {date_range}"
+            )
             df_opensky_flights = extract_opensky_flights(
                 opensky_client=opensky_client,
                 start_datetime=date_range["start_time"].strftime("%Y-%m-%d %H:%M"),
                 end_datetime=date_range["end_time"].strftime("%Y-%m-%d %H:%M"),
             )
-            pipeline_logging.logger.debug(f"Extracted data: {df_opensky_flights.head()}")
+            pipeline_logging.logger.debug(
+                f"Extracted data: {df_opensky_flights.head()}"
+            )
 
             # transform
             pipeline_logging.logger.info("Transforming dataframes")
@@ -83,8 +89,12 @@ def pipeline(config: dict, pipeline_logging: PipelineLogging):
             df_airports = pd.read_csv(config.get("airport_codes_path"))
             pipeline_logging.logger.debug(f"Airport data: {df_airports.head()}")
 
-            pipeline_logging.logger.info("Starting enrichment of flight data with airport codes")
-            df_enriched = enrich_airport_data(df_flights_transformed=df_transformed, df_airports=df_airports)
+            pipeline_logging.logger.info(
+                "Starting enrichment of flight data with airport codes"
+            )
+            df_enriched = enrich_airport_data(
+                df_flights_transformed=df_transformed, df_airports=df_airports
+            )
             pipeline_logging.logger.debug(f"Enriched data: {df_enriched.head()}")
 
             # Validate data types before loading
@@ -131,7 +141,9 @@ def pipeline(config: dict, pipeline_logging: PipelineLogging):
                 metadata=metadata,
                 load_method="upsert",
             )
-            pipeline_logging.logger.info(f"Data for range {date_range} loaded successfully")
+            pipeline_logging.logger.info(
+                f"Data for range {date_range} loaded successfully"
+            )
         except Exception as e:
             pipeline_logging.logger.error(f"Error processing range {date_range}: {e}")
             continue

@@ -48,7 +48,7 @@ def _generate_hourly_datetime_ranges(
         total_hours = int((end_time - start_time).total_seconds() / 3600)
         date_range = [
             {
-                "start_time": (start_time + timedelta(hours=i, minutes=1)),
+                "start_time": (start_time + timedelta(hours=i, seconds=1)),
                 "end_time": (start_time + timedelta(hours=i + 1)),
             }
             for i in range(total_hours)
@@ -68,17 +68,18 @@ def extract_opensky_flights(
     """
     Perform extraction using OpenSky API.
     """
-    data = []
-    for dates in _generate_hourly_datetime_ranges(
-        start_datetime=start_datetime,
-        end_datetime=end_datetime,
-    ):
-        data.extend(
-            opensky_client.get_flights(
-                start_time=int(dates.get("start_time").timestamp()),
-                end_time=int(dates.get("end_time").timestamp()),
-            )
-        )
+    data = opensky_client.get_flights(
+        start_time=int(
+            datetime.strptime(start_datetime, "%Y-%m-%d %H:%M")
+            .replace(tzinfo=timezone.utc)
+            .timestamp()
+        ),
+        end_time=int(
+            datetime.strptime(end_datetime, "%Y-%m-%d %H:%M")
+            .replace(tzinfo=timezone.utc)
+            .timestamp()
+        ),
+    )
     df = pd.json_normalize(data=data)
     return df
 
