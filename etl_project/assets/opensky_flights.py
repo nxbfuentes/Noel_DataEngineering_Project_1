@@ -9,55 +9,41 @@ import numpy as np
 
 
 def _generate_hourly_datetime_ranges(
-    start_date: str,
-    end_date: str,
+    start_datetime: str,
+    end_datetime: str,
 ) -> list[dict[str, datetime]]:
     """
     Generates a range of hourly datetime ranges.
 
     Usage example:
-        _generate_hourly_datetime_ranges(start_date="2020-01-01", end_date="2020-01-02")
+        _generate_hourly_datetime_ranges(start_datetime="2025-01-01 00:00", end_datetime="2025-01-01 17:00")
 
     Returns:
             [
-                {'start_time': datetime(2020, 1, 1, 0, 0, 0, tzinfo=timezone.utc), 'end_time': datetime(2020, 1, 1, 1, 0, 0, tzinfo=timezone.utc)},
-                {'start_time': datetime(2020, 1, 1, 1, 0, 0, tzinfo=timezone.utc), 'end_time': datetime(2020, 1, 1, 2, 0, 0, tzinfo=timezone.utc)},
+                {'start_time': datetime(2025, 1, 1, 0, 0, 0, tzinfo=timezone.utc), 'end_time': datetime(2025, 1, 1, 1, 0, 0, tzinfo=timezone.utc)},
+                {'start_time': datetime(2025, 1, 1, 1, 0, 0, tzinfo=timezone.utc), 'end_time': datetime(2025, 1, 1, 2, 0, 0, tzinfo=timezone.utc)},
                 ...
-                {'start_time': datetime(2020, 1, 1, 23, 0, 0, tzinfo=timezone.utc), 'end_time': datetime(2020, 1, 2, 0, 0, 0, tzinfo=timezone.utc)}
+                {'start_time': datetime(2025, 1, 1, 16, 0, 0, tzinfo=timezone.utc), 'end_time': datetime(2025, 1, 1, 17, 0, 0, tzinfo=timezone.utc)}
             ]
 
     Args:
-        start_date: provide a str with the format "yyyy-mm-dd"
-        end_date: provide a str with the format "yyyy-mm-dd"
+        start_datetime: provide a str with the format "yyyy-mm-dd HH:MM"
+        end_datetime: provide a str with the format "yyyy-mm-dd HH:MM"
 
     Returns:
         A list of dictionaries with datetime objects
 
     Raises:
-        Exception when incorrect input date string format is provided.
+        Exception when incorrect input datetime string format is provided.
     """
 
     date_range = []
-    if start_date is not None and end_date is not None:
-        raw_start_time = datetime.strptime(start_date, "%Y-%m-%d")
-        raw_end_time = datetime.strptime(end_date, "%Y-%m-%d")
-        start_time = datetime(
-            year=raw_start_time.year,
-            month=raw_start_time.month,
-            day=raw_start_time.day,
-            hour=0,
-            minute=0,
-            second=0,
-            tzinfo=timezone.utc,
+    if start_datetime is not None and end_datetime is not None:
+        start_time = datetime.strptime(start_datetime, "%Y-%m-%d %H:%M").replace(
+            tzinfo=timezone.utc
         )
-        end_time = datetime(
-            year=raw_end_time.year,
-            month=raw_end_time.month,
-            day=raw_end_time.day,
-            hour=0,
-            minute=0,
-            second=0,
-            tzinfo=timezone.utc,
+        end_time = datetime.strptime(end_datetime, "%Y-%m-%d %H:%M").replace(
+            tzinfo=timezone.utc
         )
         total_hours = int((end_time - start_time).total_seconds() / 3600)
         date_range = [
@@ -69,7 +55,7 @@ def _generate_hourly_datetime_ranges(
         ]
     else:
         raise Exception(
-            "Please provide valid dates `YYYY-MM-DD` for start_date and end_date."
+            "Please provide valid datetimes `YYYY-MM-DD HH:MM` for start_datetime and end_datetime."
         )
     return date_range
 

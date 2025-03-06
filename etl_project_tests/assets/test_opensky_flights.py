@@ -5,6 +5,7 @@ from etl_project.assets.opensky_flights import (
     transform_flight_data,
     enrich_airport_data,
     load,
+    _generate_hourly_datetime_ranges,  # Import the updated function
 )
 from etl_project.connectors.opensky_flights import OpenSkyApiClient
 import pytest
@@ -22,9 +23,9 @@ def setup_extract():
 
 def test_extract_opensky_flights(setup_extract):
     opensky_client = OpenSkyApiClient()
-    start_time = int(datetime(2025, 1, 1, 0, 0, 0, tzinfo=timezone.utc).timestamp())
-    end_time = int(datetime(2025, 1, 1, 1, 0, 0, tzinfo=timezone.utc).timestamp())
-    df = extract_opensky_flights(opensky_client, start_time, end_time)
+    start_date = "2025-01-01 00:00"
+    end_date = "2025-01-01 17:00"
+    df = extract_opensky_flights(opensky_client, start_date, end_date)
     assert not df.empty
 
 
@@ -208,3 +209,21 @@ def test_load(
     )
     assert len(postgresql_client.select_all(table=table)) == 2
     postgresql_client.drop_table(table_name)  # reset
+
+
+def test_generate_hourly_datetime_ranges():
+    start_datetime = "2025-01-01 00:00"
+    end_datetime = "2025-01-01 17:00"
+    expected_ranges = [
+        {
+            "start_time": datetime(2025, 1, 1, 0, 0, 0, tzinfo=timezone.utc),
+            "end_time": datetime(2025, 1, 1, 1, 0, 0, tzinfo=timezone.utc),
+        },
+        {
+            "start_time": datetime(2025, 1, 1, 1, 0, 0, tzinfo=timezone.utc),
+            "end_time": datetime(2025, 1, 1, 2, 0, 0, tzinfo=timezone.utc),
+        },
+        # Add more expected ranges as needed
+    ]
+    result = _generate_hourly_datetime_ranges(start_datetime, end_datetime)
+    assert result == expected_ranges

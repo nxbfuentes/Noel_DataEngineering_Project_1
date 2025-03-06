@@ -243,4 +243,3 @@ if __name__ == "__main__":
             time.sleep(pipeline_config.get("schedule").get("poll_seconds"))
     except KeyboardInterrupt:
         print("Pipeline execution interrupted by user.")
-``` 
