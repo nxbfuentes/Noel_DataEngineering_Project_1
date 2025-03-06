@@ -136,28 +136,36 @@ if __name__ == "__main__":
     LOGGING_PASSWORD = os.environ.get("LOGGING_PASSWORD")
     LOGGING_PORT = os.environ.get("LOGGING_PORT")
 
-
     SERVER_NAME = os.environ.get("SERVER_NAME")
     DATABASE_NAME = os.environ.get("DATABASE_NAME")
     DB_USERNAME = os.environ.get("DB_USERNAME")
     DB_PASSWORD = os.environ.get("DB_PASSWORD")
     PORT = os.environ.get("PORT")
 
-
-    postgresql_logging_client = PostgreSqlClient(
-        server_name=LOGGING_SERVER_NAME,
-        database_name=LOGGING_DATABASE_NAME,
-        username=LOGGING_USERNAME,
-        password=LOGGING_PASSWORD,
-        port=LOGGING_PORT,
-    )
+    try:
+        postgresql_logging_client = PostgreSqlClient(
+            server_name=LOGGING_SERVER_NAME,
+            database_name=LOGGING_DATABASE_NAME,
+            username=LOGGING_USERNAME,
+            password=LOGGING_PASSWORD,
+            port=LOGGING_PORT,
+        )
+        print("Logging client created successfully")
+    except Exception as e:
+        print(f"Failed to create logging client: {e}")
+        raise
 
     # get config variables
     yaml_file_path = __file__.replace(".py", ".yaml")
     if Path(yaml_file_path).exists():
-        with open(yaml_file_path) as yaml_file:
-            pipeline_config = yaml.safe_load(yaml_file)
-            PIPELINE_NAME = pipeline_config.get("name")
+        try:
+            with open(yaml_file_path) as yaml_file:
+                pipeline_config = yaml.safe_load(yaml_file)
+                PIPELINE_NAME = pipeline_config.get("name")
+                print(f"YAML file read successfully: {pipeline_config}")
+        except Exception as e:
+            print(f"Failed to read YAML file: {e}")
+            raise
     else:
         raise Exception(
             f"Missing {yaml_file_path} file! Please create the yaml file with at least a `name` key for the pipeline name."
