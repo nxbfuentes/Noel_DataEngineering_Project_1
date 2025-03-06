@@ -67,6 +67,7 @@ class PostgreSqlClient:
             },
         )
         try:
+            print(f"Executing upsert with key columns: {key_columns}")
             self.engine.execute(upsert_statement)
         except Exception as e:
             print(f"Error executing upsert: {e}")
