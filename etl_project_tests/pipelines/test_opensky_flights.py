@@ -35,7 +35,7 @@ class TestOpenSkyFlightsPipeline(unittest.TestCase):
             "start_time": "2025-01-01T00:00:00Z",
             "end_time": "2025-01-01T01:00:00Z",
             "log_folder_path": "./etl_project_tests/logs",
-            "airport_codes_path": "./etl_project/data/airport_codes.csv",
+            "airport_codes_path": "./etl_project/data/airport-codes.csv",
         }
         # Create logs folder if it doesn't exist
         logs_folder_path = config["log_folder_path"]

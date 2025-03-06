@@ -110,6 +110,13 @@ def run_pipeline(
         postgresql_client=postgresql_logging_client,
         config=pipeline_config.get("config"),
     )
+
+    # Log the creation of pipeline_logging and metadata_logger
+    pipeline_logging.logger.info("PipelineLogging created successfully")
+    pipeline_logging.logger.debug(f"PipelineLogging details: {pipeline_logging}")
+    pipeline_logging.logger.info("MetaDataLogging created successfully")
+    pipeline_logging.logger.debug(f"MetaDataLogging details: {metadata_logger}")
+
     try:
         metadata_logger.log(status=MetaDataLoggingStatus.RUNNING)  # log start
         pipeline(
