@@ -124,7 +124,7 @@ def pipeline(config: dict, pipeline_logging: PipelineLogging):
         metadata,
         Column("icao24", String, primary_key=True),
         Column("firstSeen", DateTime, primary_key=True),  # datetime64[ns]
-        Column("lastSeen", DateTime),  # datetime64[ns]
+        Column("lastSeen", DateTime, primary_key=True),  # datetime64[ns]
         Column("estDepartureAirport", String),  # object
         Column("estArrivalAirport", String),  # object
         Column("callsign", String),  # object
