@@ -57,92 +57,85 @@ def pipeline(config: dict, pipeline_logging: PipelineLogging):
     opensky_client = OpenSkyApiClient()
 
     # Convert start_time and end_time to Unix timestamps
-    start_date = config.get("start_date")
-    end_date = config.get("end_date")
+    start_date = config.get("start_datetime")
+    end_date = config.get("end_datetime")
 
-    # extract
-    pipeline_logging.logger.info("Extracting data from OpenSky API")
-    df_opensky_flights = extract_opensky_flights(
-        opensky_client=opensky_client,
-        start_datetime=start_date,  # Updated argument name
-        end_datetime=end_date,  # Updated argument name
-    )
-    pipeline_logging.logger.debug(f"Extracted data: {df_opensky_flights.head()}")
+    # Generate hourly datetime ranges
+    hourly_ranges = _generate_hourly_datetime_ranges(start_datetime=start_date, end_datetime=end_date)
 
-    # transform
-    pipeline_logging.logger.info("Transforming dataframes")
-    try:
-        pipeline_logging.logger.info("Starting transformation of flight data")
-        df_transformed = transform_flight_data(df_flights=df_opensky_flights)
-        pipeline_logging.logger.debug(f"Transformed data: {df_transformed.head()}")
-    except Exception as e:
-        pipeline_logging.logger.error(f"Error during flight data transformation: {e}")
-        raise
+    for date_range in hourly_ranges:
+        try:
+            # extract
+            pipeline_logging.logger.info(f"Extracting data from OpenSky API for range {date_range}")
+            df_opensky_flights = extract_opensky_flights(
+                opensky_client=opensky_client,
+                start_datetime=date_range["start_time"].strftime("%Y-%m-%d %H:%M"),
+                end_datetime=date_range["end_time"].strftime("%Y-%m-%d %H:%M"),
+            )
+            pipeline_logging.logger.debug(f"Extracted data: {df_opensky_flights.head()}")
 
-    try:
-        pipeline_logging.logger.info("Reading airport codes data")
-        df_airports = pd.read_csv(config.get("airport_codes_path"))
-        pipeline_logging.logger.debug(f"Airport data: {df_airports.head()}")
-    except Exception as e:
-        pipeline_logging.logger.error(f"Error reading airport codes data: {e}")
-        raise
+            # transform
+            pipeline_logging.logger.info("Transforming dataframes")
+            df_transformed = transform_flight_data(df_flights=df_opensky_flights)
+            pipeline_logging.logger.debug(f"Transformed data: {df_transformed.head()}")
 
-    try:
-        pipeline_logging.logger.info(
-            "Starting enrichment of flight data with airport codes"
-        )
-        df_enriched = enrich_airport_data(
-            df_flights_transformed=df_transformed, df_airports=df_airports
-        )
-        pipeline_logging.logger.debug(f"Enriched data: {df_enriched.head()}")
-    except Exception as e:
-        pipeline_logging.logger.error(f"Error during flight data enrichment: {e}")
-        raise
+            pipeline_logging.logger.info("Reading airport codes data")
+            df_airports = pd.read_csv(config.get("airport_codes_path"))
+            pipeline_logging.logger.debug(f"Airport data: {df_airports.head()}")
 
-    # Validate data types before loading
-    pipeline_logging.logger.info("Validating data types")
-    validate_data_types(df_enriched)
+            pipeline_logging.logger.info("Starting enrichment of flight data with airport codes")
+            df_enriched = enrich_airport_data(df_flights_transformed=df_transformed, df_airports=df_airports)
+            pipeline_logging.logger.debug(f"Enriched data: {df_enriched.head()}")
 
-    # Log DataFrame info before loading
-    log_dataframe_info(df_enriched, pipeline_logging.logger)
+            # Validate data types before loading
+            pipeline_logging.logger.info("Validating data types")
+            validate_data_types(df_enriched)
 
-    # load
-    pipeline_logging.logger.info("Loading data to postgres")
-    postgresql_client = PostgreSqlClient(
-        server_name=SERVER_NAME,
-        database_name=DATABASE_NAME,
-        username=DB_USERNAME,
-        password=DB_PASSWORD,
-        port=PORT,
-    )
-    metadata = MetaData()
-    table = Table(
-        "opensky_flights",
-        metadata,
-        Column("icao24", String, primary_key=True),
-        Column("firstSeen", DateTime, primary_key=True),  # datetime64[ns]
-        Column("lastSeen", DateTime, primary_key=True),  # datetime64[ns]
-        Column("estDepartureAirport", String),  # object
-        Column("estArrivalAirport", String),  # object
-        Column("callsign", String),  # object
-        Column("estDepartureAirportDistance", Float),  # float64
-        Column("estArrivalAirportDistance", Float),  # float64
-        Column("departure_airport_type", String),  # object
-        Column("departure_airport_name", String),  # object
-        Column("departure_country", String),  # object
-        Column("departure_coordinates", String),  # object
-        Column("arrival_airport_type", String),  # object
-        Column("arrival_airport_name", String),  # object
-        Column("arrival_country", String),  # object
-        Column("arrival_coordinates", String),  # object
-    )
-    load(
-        df=df_enriched,
-        postgresql_client=postgresql_client,
-        table=table,
-        metadata=metadata,
-        load_method="upsert",
-    )
+            # Log DataFrame info before loading
+            log_dataframe_info(df_enriched, pipeline_logging.logger)
+
+            # load
+            pipeline_logging.logger.info("Loading data to postgres")
+            postgresql_client = PostgreSqlClient(
+                server_name=SERVER_NAME,
+                database_name=DATABASE_NAME,
+                username=DB_USERNAME,
+                password=DB_PASSWORD,
+                port=PORT,
+            )
+            metadata = MetaData()
+            table = Table(
+                "opensky_flights",
+                metadata,
+                Column("icao24", String, primary_key=True),
+                Column("firstSeen", DateTime, primary_key=True),  # datetime64[ns]
+                Column("lastSeen", DateTime, primary_key=True),  # datetime64[ns]
+                Column("estDepartureAirport", String),  # object
+                Column("estArrivalAirport", String),  # object
+                Column("callsign", String),  # object
+                Column("estDepartureAirportDistance", Float),  # float64
+                Column("estArrivalAirportDistance", Float),  # float64
+                Column("departure_airport_type", String),  # object
+                Column("departure_airport_name", String),  # object
+                Column("departure_country", String),  # object
+                Column("departure_coordinates", String),  # object
+                Column("arrival_airport_type", String),  # object
+                Column("arrival_airport_name", String),  # object
+                Column("arrival_country", String),  # object
+                Column("arrival_coordinates", String),  # object
+            )
+            load(
+                df=df_enriched,
+                postgresql_client=postgresql_client,
+                table=table,
+                metadata=metadata,
+                load_method="upsert",
+            )
+            pipeline_logging.logger.info(f"Data for range {date_range} loaded successfully")
+        except Exception as e:
+            pipeline_logging.logger.error(f"Error processing range {date_range}: {e}")
+            continue
+
     pipeline_logging.logger.info("Pipeline run successful")
 
 
