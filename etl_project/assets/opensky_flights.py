@@ -13,7 +13,7 @@ def _generate_hourly_datetime_ranges(
     end_datetime: str,
 ) -> list[dict[str, datetime]]:
     """
-    Generates a range of hourly datetime ranges.
+    Generates a range of hourly datetime ranges with a one-minute overlap.
 
     Usage example:
         _generate_hourly_datetime_ranges(start_datetime="2025-01-01 00:00", end_datetime="2025-01-01 17:00")
@@ -21,9 +21,9 @@ def _generate_hourly_datetime_ranges(
     Returns:
             [
                 {'start_time': datetime(2025, 1, 1, 0, 0, 0, tzinfo=timezone.utc), 'end_time': datetime(2025, 1, 1, 1, 0, 0, tzinfo=timezone.utc)},
-                {'start_time': datetime(2025, 1, 1, 1, 0, 0, tzinfo=timezone.utc), 'end_time': datetime(2025, 1, 1, 2, 0, 0, tzinfo=timezone.utc)},
+                {'start_time': datetime(2025, 1, 1, 1, 1, 0, tzinfo=timezone.utc), 'end_time': datetime(2025, 1, 1, 2, 0, 0, tzinfo=timezone.utc)},
                 ...
-                {'start_time': datetime(2025, 1, 1, 16, 0, 0, tzinfo=timezone.utc), 'end_time': datetime(2025, 1, 1, 17, 0, 0, tzinfo=timezone.utc)}
+                {'start_time': datetime(2025, 1, 1, 16, 1, 0, tzinfo=timezone.utc), 'end_time': datetime(2025, 1, 1, 17, 0, 0, tzinfo=timezone.utc)}
             ]
 
     Args:
@@ -48,7 +48,7 @@ def _generate_hourly_datetime_ranges(
         total_hours = int((end_time - start_time).total_seconds() / 3600)
         date_range = [
             {
-                "start_time": (start_time + timedelta(hours=i)),
+                "start_time": (start_time + timedelta(hours=i, minutes=1)),
                 "end_time": (start_time + timedelta(hours=i + 1)),
             }
             for i in range(total_hours)

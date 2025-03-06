@@ -220,10 +220,65 @@ def test_generate_hourly_datetime_ranges():
             "end_time": datetime(2025, 1, 1, 1, 0, 0, tzinfo=timezone.utc),
         },
         {
-            "start_time": datetime(2025, 1, 1, 1, 0, 0, tzinfo=timezone.utc),
+            "start_time": datetime(2025, 1, 1, 1, 1, 0, tzinfo=timezone.utc),
             "end_time": datetime(2025, 1, 1, 2, 0, 0, tzinfo=timezone.utc),
         },
-        # Add more expected ranges as needed
+        {
+            "start_time": datetime(2025, 1, 1, 2, 2, 0, tzinfo=timezone.utc),
+            "end_time": datetime(2025, 1, 1, 3, 0, 0, tzinfo=timezone.utc),
+        },
+        {
+            "start_time": datetime(2025, 1, 1, 3, 3, 0, tzinfo=timezone.utc),
+            "end_time": datetime(2025, 1, 1, 4, 0, 0, tzinfo=timezone.utc),
+        },
+        {
+            "start_time": datetime(2025, 1, 1, 4, 4, 0, tzinfo=timezone.utc),
+            "end_time": datetime(2025, 1, 1, 5, 0, 0, tzinfo=timezone.utc),
+        },
+        {
+            "start_time": datetime(2025, 1, 1, 5, 5, 0, tzinfo=timezone.utc),
+            "end_time": datetime(2025, 1, 1, 6, 0, 0, tzinfo=timezone.utc),
+        },
+        {
+            "start_time": datetime(2025, 1, 1, 6, 6, 0, tzinfo=timezone.utc),
+            "end_time": datetime(2025, 1, 1, 7, 0, 0, tzinfo=timezone.utc),
+        },
+        {
+            "start_time": datetime(2025, 1, 1, 7, 7, 0, tzinfo=timezone.utc),
+            "end_time": datetime(2025, 1, 1, 8, 0, 0, tzinfo=timezone.utc),
+        },
+        {
+            "start_time": datetime(2025, 1, 1, 8, 8, 0, tzinfo=timezone.utc),
+            "end_time": datetime(2025, 1, 1, 9, 0, 0, tzinfo=timezone.utc),
+        },
+        {
+            "start_time": datetime(2025, 1, 1, 9, 9, 0, tzinfo=timezone.utc),
+            "end_time": datetime(2025, 1, 1, 10, 0, 0, tzinfo=timezone.utc),
+        },
+        {
+            "start_time": datetime(2025, 1, 1, 10, 10, 0, tzinfo=timezone.utc),
+            "end_time": datetime(2025, 1, 1, 11, 0, 0, tzinfo=timezone.utc),
+        },
+        {
+            "start_time": datetime(2025, 1, 1, 11, 11, 0, tzinfo=timezone.utc),
+            "end_time": datetime(2025, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
+        },
+        {
+            "start_time": datetime(2025, 1, 1, 12, 12, 0, tzinfo=timezone.utc),
+            "end_time": datetime(2025, 1, 1, 13, 0, 0, tzinfo=timezone.utc),
+        },
+        {
+            "start_time": datetime(2025, 1, 1, 13, 13, 0, tzinfo=timezone.utc),
+            "end_time": datetime(2025, 1, 1, 14, 0, 0, tzinfo=timezone.utc),
+        },
+        {
+            "start_time": datetime(2025, 1, 1, 14, 14, 0, tzinfo=timezone.utc),
+            "end_time": datetime(2025, 1, 1, 15, 0, 0, tzinfo=timezone.utc),
+        },
+        {
+            "start_time": datetime(2025, 1, 1, 15, 15, 0, tzinfo=timezone.utc),
+            "end_time": datetime(2025, 1, 1, 16, 0, 0, tzinfo=timezone.utc),
+        },
     ]
     result = _generate_hourly_datetime_ranges(start_datetime, end_datetime)
     assert result == expected_ranges
