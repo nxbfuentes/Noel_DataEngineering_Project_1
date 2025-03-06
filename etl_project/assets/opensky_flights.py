@@ -5,6 +5,7 @@ from sqlalchemy import Table, MetaData
 from etl_project.connectors.postgresql import PostgreSqlClient
 from datetime import datetime, timezone, timedelta
 import logging
+import numpy as np
 
 
 def extract_opensky_flights(
@@ -24,14 +25,14 @@ def transform_flight_data(df_flights: pd.DataFrame):
     """Performs transformation on dataframe produced from extract() function."""
     df_flights["firstSeen"] = pd.to_datetime(df_flights["firstSeen"], unit="s")
     df_flights["lastSeen"] = pd.to_datetime(df_flights["lastSeen"], unit="s")
-    df_flights["estDepartureAirportDistance"] = (
+    df_flights["estDepartureAirportDistance"] = np.sqrt(
         df_flights["estDepartureAirportHorizDistance"] ** 2
         + df_flights["estDepartureAirportVertDistance"] ** 2
-    ) ** 0.5
-    df_flights["estArrivalAirportDistance"] = (
+    )
+    df_flights["estArrivalAirportDistance"] = np.sqrt(
         df_flights["estArrivalAirportHorizDistance"] ** 2
         + df_flights["estArrivalAirportVertDistance"] ** 2
-    ) ** 0.5
+    )
     df_flights["estDepartureAirportDistance"] = df_flights[
         "estDepartureAirportDistance"
     ].round(2)
