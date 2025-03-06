@@ -2,7 +2,6 @@ import os
 from pathlib import Path
 from etl_project.assets.opensky_flights import (
     extract_opensky_flights,
-    transform,
     transform_flight_data,
     enrich_airport_data,
     load,
@@ -55,9 +54,9 @@ def setup_input_flights_df():
     )
 
 
-def test_transform(setup_input_flights_df):
+def test_transform_flight_data(setup_input_flights_df):
     df = setup_input_flights_df
-    transformed_df = transform(df)
+    transformed_df = transform_flight_data(df)
     assert "estDepartureAirportDistance" in transformed_df.columns
     assert "estArrivalAirportDistance" in transformed_df.columns
 

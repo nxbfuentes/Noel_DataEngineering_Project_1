@@ -20,20 +20,6 @@ def extract_opensky_flights(
     return df
 
 
-def transform(df: pd.DataFrame) -> pd.DataFrame:
-    df["firstSeen"] = pd.to_datetime(df["firstSeen"], unit="s")
-    df["lastSeen"] = pd.to_datetime(df["lastSeen"], unit="s")
-    df["estDepartureAirportDistance"] = (
-        df["estDepartureAirportHorizDistance"] ** 2
-        + df["estDepartureAirportVertDistance"] ** 2
-    ) ** 0.5
-    df["estArrivalAirportDistance"] = (
-        df["estArrivalAirportHorizDistance"] ** 2
-        + df["estArrivalAirportVertDistance"] ** 2
-    ) ** 0.5
-    return df
-
-
 def transform_flight_data(df_flights: pd.DataFrame):
     """Performs transformation on dataframe produced from extract() function."""
     df_flights["firstSeen"] = pd.to_datetime(df_flights["firstSeen"], unit="s")
@@ -46,6 +32,12 @@ def transform_flight_data(df_flights: pd.DataFrame):
         df_flights["estArrivalAirportHorizDistance"] ** 2
         + df_flights["estArrivalAirportVertDistance"] ** 2
     ) ** 0.5
+    df_flights["estDepartureAirportDistance"] = df_flights[
+        "estDepartureAirportDistance"
+    ].round(2)
+    df_flights["estArrivalAirportDistance"] = df_flights[
+        "estArrivalAirportDistance"
+    ].round(2)
     df_flights_transformed = df_flights[
         [
             "icao24",
