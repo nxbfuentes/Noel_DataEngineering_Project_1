@@ -132,6 +132,8 @@ def test_enrich_airport_data(setup_transformed_flights_df, setup_airports_df):
     enriched_df = enrich_airport_data(df_flights, df_airports)
     assert "departure_airport_name" in enriched_df.columns
     assert "arrival_airport_name" in enriched_df.columns
+    assert "departure_country" in enriched_df.columns
+    assert "arrival_country" in enriched_df.columns
 
 
 @pytest.fixture
