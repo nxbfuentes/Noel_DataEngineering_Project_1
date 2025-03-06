@@ -42,14 +42,19 @@ def pipeline(config: dict, pipeline_logging: PipelineLogging):
         start_time=config.get("start_time"),
         end_time=config.get("end_time"),
     )
+    pipeline_logging.logger.debug(f"Extracted data: {df_opensky_flights.head()}")
+
     # transform
     pipeline_logging.logger.info("Transforming dataframes")
     df_transformed = transform_flight_data(response_data=df_opensky_flights)
+    pipeline_logging.logger.debug(f"Transformed data: {df_transformed.head()}")
 
     df_airports = pd.read_csv(config.get("airport_codes_path"))
+    pipeline_logging.logger.debug(f"Airport data: {df_airports.head()}")
     df_enriched = enrich_airport_data(
         df_flights_transformed=df_transformed, df_airports=df_airports
     )
+    pipeline_logging.logger.debug(f"Enriched data: {df_enriched.head()}")
 
     # load
     pipeline_logging.logger.info("Loading data to postgres")
@@ -131,12 +136,13 @@ if __name__ == "__main__":
     LOGGING_PASSWORD = os.environ.get("LOGGING_PASSWORD")
     LOGGING_PORT = os.environ.get("LOGGING_PORT")
 
-    # Print environment variables to debug
-    print("LOGGING_SERVER_NAME:", LOGGING_SERVER_NAME)
-    print("LOGGING_DATABASE_NAME:", LOGGING_DATABASE_NAME)
-    print("LOGGING_USERNAME:", LOGGING_USERNAME)
-    print("LOGGING_PASSWORD:", LOGGING_PASSWORD)
-    print("LOGGING_PORT:", LOGGING_PORT)
+
+    SERVER_NAME = os.environ.get("SERVER_NAME")
+    DATABASE_NAME = os.environ.get("DATABASE_NAME")
+    DB_USERNAME = os.environ.get("DB_USERNAME")
+    DB_PASSWORD = os.environ.get("DB_PASSWORD")
+    PORT = os.environ.get("PORT")
+
 
     postgresql_logging_client = PostgreSqlClient(
         server_name=LOGGING_SERVER_NAME,
@@ -165,6 +171,9 @@ if __name__ == "__main__":
         pipeline_config=pipeline_config,
     )
 
-    while True:
-        schedule.run_pending()
-        time.sleep(pipeline_config.get("schedule").get("poll_seconds"))
+    try:
+        while True:
+            schedule.run_pending()
+            time.sleep(pipeline_config.get("schedule").get("poll_seconds"))
+    except KeyboardInterrupt:
+        print("Pipeline execution interrupted by user.")
