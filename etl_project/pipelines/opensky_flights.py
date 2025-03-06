@@ -16,6 +16,7 @@ import schedule
 import time
 from etl_project.assets.pipeline_logging import PipelineLogging
 import pandas as pd
+import datetime
 
 
 def pipeline(config: dict, pipeline_logging: PipelineLogging):
@@ -35,12 +36,24 @@ def pipeline(config: dict, pipeline_logging: PipelineLogging):
     pipeline_logging.logger.info("Creating OpenSky API client")
     opensky_client = OpenSkyApiClient()
 
+    # Convert start_time and end_time to Unix timestamps
+    start_time_str = config.get("start_time")
+    end_time_str = config.get("end_time")
+    start_time = int(
+        datetime.datetime.fromisoformat(
+            start_time_str.replace("Z", "+00:00")
+        ).timestamp()
+    )
+    end_time = int(
+        datetime.datetime.fromisoformat(end_time_str.replace("Z", "+00:00")).timestamp()
+    )
+
     # extract
     pipeline_logging.logger.info("Extracting data from OpenSky API")
     df_opensky_flights = extract_opensky_flights(
         opensky_client=opensky_client,
-        start_time=config.get("start_time"),
-        end_time=config.get("end_time"),
+        start_time=start_time,
+        end_time=end_time,
     )
     pipeline_logging.logger.debug(f"Extracted data: {df_opensky_flights.head()}")
 
@@ -118,7 +131,7 @@ def run_pipeline(
     pipeline_logging.logger.debug(f"MetaDataLogging details: {metadata_logger}")
 
     try:
-        metadata_logger.log(status=MetaDataLoggingStatus.RUNNING)  # log start
+        metadata_logger.log()  # log start
         pipeline(
             config=pipeline_config.get("config"), pipeline_logging=pipeline_logging
         )

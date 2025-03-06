@@ -68,7 +68,7 @@ class MetaDataLogging:
             pipeline_name=self.pipeline_name,
             timestamp=timestamp,
             run_id=self.run_id,
-            status=status
+            status=status,
             config=self.config,
             logs=logs,
         )
