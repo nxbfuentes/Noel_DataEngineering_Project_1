@@ -33,12 +33,12 @@ def transform_flight_data(df_flights: pd.DataFrame):
         df_flights["estArrivalAirportHorizDistance"] ** 2
         + df_flights["estArrivalAirportVertDistance"] ** 2
     )
-    df_flights["estDepartureAirportDistance"] = df_flights[
-        "estDepartureAirportDistance"
-    ].round(2)
-    df_flights["estArrivalAirportDistance"] = df_flights[
-        "estArrivalAirportDistance"
-    ].round(2)
+    df_flights["estDepartureAirportDistance"] = (
+        df_flights["estDepartureAirportDistance"].round(2).astype(float)
+    )
+    df_flights["estArrivalAirportDistance"] = (
+        df_flights["estArrivalAirportDistance"].round(2).astype(float)
+    )
     df_flights_transformed = df_flights[
         [
             "icao24",

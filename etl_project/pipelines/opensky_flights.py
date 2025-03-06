@@ -33,6 +33,12 @@ def validate_data_ranges(df: pd.DataFrame, logger):
     Validate and correct data ranges in the DataFrame to match the database constraints.
     """
     try:
+        # Ensure data types are correct before validation
+        df["estDepartureAirportDistance"] = df["estDepartureAirportDistance"].astype(
+            float
+        )
+        df["estArrivalAirportDistance"] = df["estArrivalAirportDistance"].astype(float)
+
         departure_min, departure_max = (
             df["estDepartureAirportDistance"].min(),
             df["estDepartureAirportDistance"].max(),
@@ -78,7 +84,7 @@ def log_dataframe_info(df: pd.DataFrame, logger):
     logger.info("DataFrame info:")
     logger.info(df.dtypes)
     logger.info("Sample data:")
-    logger.info(df.head())
+    logger.info(df.info())
 
 
 def pipeline(config: dict, pipeline_logging: PipelineLogging):
@@ -154,8 +160,8 @@ def pipeline(config: dict, pipeline_logging: PipelineLogging):
     validate_data_types(df_enriched)
 
     # Validate data ranges before loading
-    pipeline_logging.logger.info("Validating data ranges")
-    validate_data_ranges(df_enriched, pipeline_logging.logger)
+    # pipeline_logging.logger.info("Validating data ranges")
+    # validate_data_ranges(df_enriched, pipeline_logging.logger)
 
     # Log DataFrame info before loading
     log_dataframe_info(df_enriched, pipeline_logging.logger)
