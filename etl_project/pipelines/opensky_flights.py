@@ -33,11 +33,37 @@ def validate_data_ranges(df: pd.DataFrame, logger):
     Validate and correct data ranges in the DataFrame to match the database constraints.
     """
     try:
+        departure_min, departure_max = (
+            df["estDepartureAirportDistance"].min(),
+            df["estDepartureAirportDistance"].max(),
+        )
+        arrival_min, arrival_max = (
+            df["estArrivalAirportDistance"].min(),
+            df["estArrivalAirportDistance"].max(),
+        )
+
+        logger.info(
+            f"Departure Airport Distance Range: ({departure_min}, {departure_max})"
+        )
+        logger.info(f"Arrival Airport Distance Range: ({arrival_min}, {arrival_max})")
+
         if not df["estDepartureAirportDistance"].between(-32768, 32767).all():
             logger.error("estDepartureAirportDistance values out of range")
+            out_of_range_rows = df[
+                ~df["estDepartureAirportDistance"].between(-32768, 32767)
+            ]
+            logger.error(
+                f"Out of range rows for estDepartureAirportDistance: {out_of_range_rows}"
+            )
             raise ValueError("estDepartureAirportDistance values out of range")
         if not df["estArrivalAirportDistance"].between(-32768, 32767).all():
             logger.error("estArrivalAirportDistance values out of range")
+            out_of_range_rows = df[
+                ~df["estArrivalAirportDistance"].between(-32768, 32767)
+            ]
+            logger.error(
+                f"Out of range rows for estArrivalAirportDistance: {out_of_range_rows}"
+            )
             raise ValueError("estArrivalAirportDistance values out of range")
         # Add more range validations as needed
     except KeyError as e:
