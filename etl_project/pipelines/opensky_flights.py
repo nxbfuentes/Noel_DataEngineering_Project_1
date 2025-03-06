@@ -64,8 +64,8 @@ def pipeline(config: dict, pipeline_logging: PipelineLogging):
     pipeline_logging.logger.info("Extracting data from OpenSky API")
     df_opensky_flights = extract_opensky_flights(
         opensky_client=opensky_client,
-        start_date=start_date,
-        end_date=end_date,
+        start_datetime=start_date,  # Updated argument name
+        end_datetime=end_date,  # Updated argument name
     )
     pipeline_logging.logger.debug(f"Extracted data: {df_opensky_flights.head()}")
 

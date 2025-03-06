@@ -23,9 +23,11 @@ def setup_extract():
 
 def test_extract_opensky_flights(setup_extract):
     opensky_client = OpenSkyApiClient()
-    start_date = "2025-01-01 00:00"
-    end_date = "2025-01-01 17:00"
-    df = extract_opensky_flights(opensky_client, start_date, end_date)
+    start_datetime = "2025-01-01 00:00"  # Updated argument name
+    end_datetime = "2025-01-01 05:00"  # Updated argument name
+    df = extract_opensky_flights(
+        opensky_client, start_datetime, end_datetime
+    )  # Updated argument names
     assert not df.empty
 
 
@@ -41,6 +43,9 @@ def setup_input_flights_df():
                 "estDepartureAirportVertDistance": 50,
                 "estArrivalAirportHorizDistance": 200,
                 "estArrivalAirportVertDistance": 100,
+                "estDepartureAirport": "JFK",  # Added column
+                "estArrivalAirport": "LAX",  # Added column
+                "callsign": "ABC123",  # Added column
             },
             {
                 "icao24": "def456",
@@ -50,6 +55,9 @@ def setup_input_flights_df():
                 "estDepartureAirportVertDistance": 75,
                 "estArrivalAirportHorizDistance": 250,
                 "estArrivalAirportVertDistance": 125,
+                "estDepartureAirport": "SFO",  # Added column
+                "estArrivalAirport": "ORD",  # Added column
+                "callsign": "DEF456",  # Added column
             },
         ]
     )
@@ -213,10 +221,10 @@ def test_load(
 
 def test_generate_hourly_datetime_ranges():
     start_datetime = "2025-01-01 00:00"
-    end_datetime = "2025-01-01 17:00"
+    end_datetime = "2025-01-01 05:00"  # Updated end time
     expected_ranges = [
         {
-            "start_time": datetime(2025, 1, 1, 0, 0, 0, tzinfo=timezone.utc),
+            "start_time": datetime(2025, 1, 1, 0, 1, 0, tzinfo=timezone.utc),
             "end_time": datetime(2025, 1, 1, 1, 0, 0, tzinfo=timezone.utc),
         },
         {
@@ -224,60 +232,16 @@ def test_generate_hourly_datetime_ranges():
             "end_time": datetime(2025, 1, 1, 2, 0, 0, tzinfo=timezone.utc),
         },
         {
-            "start_time": datetime(2025, 1, 1, 2, 2, 0, tzinfo=timezone.utc),
+            "start_time": datetime(2025, 1, 1, 2, 1, 0, tzinfo=timezone.utc),
             "end_time": datetime(2025, 1, 1, 3, 0, 0, tzinfo=timezone.utc),
         },
         {
-            "start_time": datetime(2025, 1, 1, 3, 3, 0, tzinfo=timezone.utc),
+            "start_time": datetime(2025, 1, 1, 3, 1, 0, tzinfo=timezone.utc),
             "end_time": datetime(2025, 1, 1, 4, 0, 0, tzinfo=timezone.utc),
         },
         {
-            "start_time": datetime(2025, 1, 1, 4, 4, 0, tzinfo=timezone.utc),
+            "start_time": datetime(2025, 1, 1, 4, 1, 0, tzinfo=timezone.utc),
             "end_time": datetime(2025, 1, 1, 5, 0, 0, tzinfo=timezone.utc),
-        },
-        {
-            "start_time": datetime(2025, 1, 1, 5, 5, 0, tzinfo=timezone.utc),
-            "end_time": datetime(2025, 1, 1, 6, 0, 0, tzinfo=timezone.utc),
-        },
-        {
-            "start_time": datetime(2025, 1, 1, 6, 6, 0, tzinfo=timezone.utc),
-            "end_time": datetime(2025, 1, 1, 7, 0, 0, tzinfo=timezone.utc),
-        },
-        {
-            "start_time": datetime(2025, 1, 1, 7, 7, 0, tzinfo=timezone.utc),
-            "end_time": datetime(2025, 1, 1, 8, 0, 0, tzinfo=timezone.utc),
-        },
-        {
-            "start_time": datetime(2025, 1, 1, 8, 8, 0, tzinfo=timezone.utc),
-            "end_time": datetime(2025, 1, 1, 9, 0, 0, tzinfo=timezone.utc),
-        },
-        {
-            "start_time": datetime(2025, 1, 1, 9, 9, 0, tzinfo=timezone.utc),
-            "end_time": datetime(2025, 1, 1, 10, 0, 0, tzinfo=timezone.utc),
-        },
-        {
-            "start_time": datetime(2025, 1, 1, 10, 10, 0, tzinfo=timezone.utc),
-            "end_time": datetime(2025, 1, 1, 11, 0, 0, tzinfo=timezone.utc),
-        },
-        {
-            "start_time": datetime(2025, 1, 1, 11, 11, 0, tzinfo=timezone.utc),
-            "end_time": datetime(2025, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
-        },
-        {
-            "start_time": datetime(2025, 1, 1, 12, 12, 0, tzinfo=timezone.utc),
-            "end_time": datetime(2025, 1, 1, 13, 0, 0, tzinfo=timezone.utc),
-        },
-        {
-            "start_time": datetime(2025, 1, 1, 13, 13, 0, tzinfo=timezone.utc),
-            "end_time": datetime(2025, 1, 1, 14, 0, 0, tzinfo=timezone.utc),
-        },
-        {
-            "start_time": datetime(2025, 1, 1, 14, 14, 0, tzinfo=timezone.utc),
-            "end_time": datetime(2025, 1, 1, 15, 0, 0, tzinfo=timezone.utc),
-        },
-        {
-            "start_time": datetime(2025, 1, 1, 15, 15, 0, tzinfo=timezone.utc),
-            "end_time": datetime(2025, 1, 1, 16, 0, 0, tzinfo=timezone.utc),
         },
     ]
     result = _generate_hourly_datetime_ranges(start_datetime, end_datetime)

@@ -62,15 +62,16 @@ def _generate_hourly_datetime_ranges(
 
 def extract_opensky_flights(
     opensky_client: OpenSkyApiClient,
-    start_date: str,
-    end_date: str,
+    start_datetime: str,  # Updated argument name
+    end_datetime: str,  # Updated argument name
 ) -> pd.DataFrame:
     """
     Perform extraction using OpenSky API.
     """
     data = []
     for dates in _generate_hourly_datetime_ranges(
-        start_date=start_date, end_date=end_date
+        start_datetime=start_datetime,  # Updated argument name
+        end_datetime=end_datetime,  # Updated argument name
     ):
         data.extend(
             opensky_client.get_flights(
