@@ -59,15 +59,31 @@ def pipeline(config: dict, pipeline_logging: PipelineLogging):
 
     # transform
     pipeline_logging.logger.info("Transforming dataframes")
-    df_transformed = transform_flight_data(response_data=df_opensky_flights)
-    pipeline_logging.logger.debug(f"Transformed data: {df_transformed.head()}")
+    try:
+        pipeline_logging.logger.info("Starting transformation of flight data")
+        df_transformed = transform_flight_data(response_data=df_opensky_flights)
+        pipeline_logging.logger.debug(f"Transformed data: {df_transformed.head()}")
+    except Exception as e:
+        pipeline_logging.logger.error(f"Error during flight data transformation: {e}")
+        raise
 
-    df_airports = pd.read_csv(config.get("airport_codes_path"))
-    pipeline_logging.logger.debug(f"Airport data: {df_airports.head()}")
-    df_enriched = enrich_airport_data(
-        df_flights_transformed=df_transformed, df_airports=df_airports
-    )
-    pipeline_logging.logger.debug(f"Enriched data: {df_enriched.head()}")
+    try:
+        pipeline_logging.logger.info("Reading airport codes data")
+        df_airports = pd.read_csv(config.get("airport_codes_path"))
+        pipeline_logging.logger.debug(f"Airport data: {df_airports.head()}")
+    except Exception as e:
+        pipeline_logging.logger.error(f"Error reading airport codes data: {e}")
+        raise
+
+    try:
+        pipeline_logging.logger.info("Starting enrichment of flight data with airport codes")
+        df_enriched = enrich_airport_data(
+            df_flights_transformed=df_transformed, df_airports=df_airports
+        )
+        pipeline_logging.logger.debug(f"Enriched data: {df_enriched.head()}")
+    except Exception as e:
+        pipeline_logging.logger.error(f"Error during flight data enrichment: {e}")
+        raise
 
     # load
     pipeline_logging.logger.info("Loading data to postgres")
@@ -145,6 +161,7 @@ def run_pipeline(
             status=MetaDataLoggingStatus.RUN_FAILURE, logs=pipeline_logging.get_logs()
         )  # log error
         pipeline_logging.logger.handlers.clear()
+        raise  # Re-raise the exception to ensure it's not silently ignored
 
 
 if __name__ == "__main__":
