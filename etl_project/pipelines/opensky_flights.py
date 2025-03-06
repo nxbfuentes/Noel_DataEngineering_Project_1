@@ -19,6 +19,15 @@ import pandas as pd
 import datetime
 
 
+def validate_data_types(df: pd.DataFrame):
+    """
+    Validate and correct data types in the DataFrame to match the database schema.
+    """
+    df["estDepartureAirportDistance"] = df["estDepartureAirportDistance"].astype(float)
+    df["estArrivalAirportDistance"] = df["estArrivalAirportDistance"].astype(float)
+    # Add more type validations as needed
+
+
 def pipeline(config: dict, pipeline_logging: PipelineLogging):
     pipeline_logging.logger.info("Starting pipeline run")
     # set up environment variables
@@ -61,7 +70,7 @@ def pipeline(config: dict, pipeline_logging: PipelineLogging):
     pipeline_logging.logger.info("Transforming dataframes")
     try:
         pipeline_logging.logger.info("Starting transformation of flight data")
-        df_transformed = transform_flight_data(response_data=df_opensky_flights)
+        df_transformed = transform_flight_data(df_flights=df_opensky_flights)
         pipeline_logging.logger.debug(f"Transformed data: {df_transformed.head()}")
     except Exception as e:
         pipeline_logging.logger.error(f"Error during flight data transformation: {e}")
@@ -76,7 +85,9 @@ def pipeline(config: dict, pipeline_logging: PipelineLogging):
         raise
 
     try:
-        pipeline_logging.logger.info("Starting enrichment of flight data with airport codes")
+        pipeline_logging.logger.info(
+            "Starting enrichment of flight data with airport codes"
+        )
         df_enriched = enrich_airport_data(
             df_flights_transformed=df_transformed, df_airports=df_airports
         )
@@ -84,6 +95,10 @@ def pipeline(config: dict, pipeline_logging: PipelineLogging):
     except Exception as e:
         pipeline_logging.logger.error(f"Error during flight data enrichment: {e}")
         raise
+
+    # Validate data types before loading
+    pipeline_logging.logger.info("Validating data types")
+    validate_data_types(df_enriched)
 
     # load
     pipeline_logging.logger.info("Loading data to postgres")

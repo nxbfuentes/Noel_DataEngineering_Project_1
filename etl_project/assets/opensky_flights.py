@@ -21,7 +21,6 @@ def extract_opensky_flights(
 
 
 def transform(df: pd.DataFrame) -> pd.DataFrame:
-    """Performs transformation on dataframe produced from extract() function."""
     df["firstSeen"] = pd.to_datetime(df["firstSeen"], unit="s")
     df["lastSeen"] = pd.to_datetime(df["lastSeen"], unit="s")
     df["estDepartureAirportDistance"] = (
@@ -35,8 +34,8 @@ def transform(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def transform_flight_data(response_data):
-    df_flights = pd.json_normalize(data=response_data)
+def transform_flight_data(df_flights: pd.DataFrame):
+    """Performs transformation on dataframe produced from extract() function."""
     df_flights["firstSeen"] = pd.to_datetime(df_flights["firstSeen"], unit="s")
     df_flights["lastSeen"] = pd.to_datetime(df_flights["lastSeen"], unit="s")
     df_flights["estDepartureAirportDistance"] = (
@@ -120,9 +119,11 @@ def enrich_airport_data(df_flights_transformed, df_airports):
         "arrival_country",
         "arrival_coordinates",
     ]
-    df_filtered = final_merged[columns_to_keep]
-    df_filtered["firstSeen"] = df_filtered["firstSeen"].astype("datetime64[ns]")
-    df_filtered["lastSeen"] = df_filtered["lastSeen"].astype("datetime64[ns]")
+    df_filtered = final_merged[
+        columns_to_keep
+    ].copy()  # Use .copy() to avoid SettingWithCopyWarning
+    df_filtered.loc[:, "firstSeen"] = df_filtered["firstSeen"].astype("datetime64[ns]")
+    df_filtered.loc[:, "lastSeen"] = df_filtered["lastSeen"].astype("datetime64[ns]")
 
     return df_filtered
 
