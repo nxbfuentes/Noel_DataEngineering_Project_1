@@ -32,12 +32,13 @@ class TestOpenSkyFlightsPipeline(unittest.TestCase):
         mock_enrich_airport_data.return_value = MagicMock()
 
         config = {
-            "start_time": "2023-01-01T00:00:00Z",
-            "end_time": "2023-01-01T01:00:00Z",
-            "airport_codes_path": "data/airport-codes.csv",
+            "start_time": "2025-01-01T00:00:00Z",
+            "end_time": "2025-01-01T01:00:00Z",
+            "log_folder_path": "./etl_project_tests/logs",
+            "airport_codes_path": "./etl_project/data/airport_codes.csv",
         }
         # Create logs folder if it doesn't exist
-        logs_folder_path = "logs"
+        logs_folder_path = config["log_folder_path"]
         os.makedirs(logs_folder_path, exist_ok=True)
 
         pipeline_logging = PipelineLogging(
@@ -67,7 +68,7 @@ class TestOpenSkyFlightsPipeline(unittest.TestCase):
         mock_metadata_logging = MockMetaDataLogging.return_value
         mock_pipeline_logging = MockPipelineLogging.return_value
 
-        pipeline_config = {"config": {"log_folder_path": "path/to/logs"}}
+        pipeline_config = {"config": {"log_folder_path": "./etl_project_tests/logs"}}
         postgresql_logging_client = MagicMock()
 
         # Run the run_pipeline function
