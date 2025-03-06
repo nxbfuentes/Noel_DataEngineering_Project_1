@@ -118,8 +118,8 @@ def pipeline(config: dict, pipeline_logging: PipelineLogging):
                 "opensky_flights",
                 metadata,
                 Column("icao24", String, primary_key=True),
-                Column("firstSeen", DateTime, primary_key=True),  # datetime64[ns]
-                Column("lastSeen", DateTime, primary_key=True),  # datetime64[ns]
+                Column("firstSeen", DateTime(timezone=True), primary_key=True),  # datetime64[ns]
+                Column("lastSeen", DateTime(timezone=True), primary_key=True),  # datetime64[ns]
                 Column("estDepartureAirport", String),  # object
                 Column("estArrivalAirport", String),  # object
                 Column("callsign", String),  # object
