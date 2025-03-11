@@ -1,0 +1,10 @@
+name: opensky_flights
+config: 
+  start_time: "2025-01-01 00:00"
+  start_datetime: "2025-01-01 00:00"
+  end_datetime: "2025-01-01 06:00"
+  log_folder_path: "./etl_project/logs"
+  airport_codes_path: "./etl_project/data/airport-codes.csv"
+schedule:
+  run_seconds: 5
+  poll_seconds: 2
