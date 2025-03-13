@@ -101,6 +101,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+Dockerfile ECR
 
 # Spyder project settings
 .spyderproject
